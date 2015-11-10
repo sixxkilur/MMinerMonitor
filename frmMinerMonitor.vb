@@ -1,4 +1,4 @@
-﻿Imports MMinerMonitor.Extensions
+Imports MMinerMonitor.Extensions
 Imports MMinerMonitor.MobileMinerApi.Helpers
 
 Public Class frmMain
@@ -49,19 +49,20 @@ Public Class frmMain
 
         'supported miner types
         Public Enum enSupportedMinerTypes
-            AntMinerS1 = 1
-            AntMinerS2 = 2
-            AntMinerS3 = 3
-            AntMinerS4 = 4
-            AntMinerC1 = 5
-            SpondooliesSP10 = 6
-            SpondooliesSP20 = 7
-            SpondooliesSP30 = 8
-            SpondooliesSP31 = 9
-            SpondooliesSP35 = 10
-            AntminerS5 = 11
-            GridseedGBlack = 12
-            InnosiliconA288MH = 13
+            AntMinerR1 = 1
+            AntMinerS1 = 2
+            AntMinerS2 = 3
+            AntMinerS3 = 4
+            AntMinerS4 = 5
+            AntMinerC1 = 6
+            SpondooliesSP10 = 7
+            SpondooliesSP20 = 8
+            SpondooliesSP30 = 9
+            SpondooliesSP31 = 10
+            SpondooliesSP35 = 11
+            AntminerS5 = 12
+            GridseedGBlack = 13
+            InnosiliconA288MH = 14
         End Enum
 
         Public Enum enSpeedType
@@ -249,6 +250,28 @@ Public Class frmMain
                 End Select
 
                 Select Case MinerType
+                    'I added for R1
+                    Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerR1
+                        Me.sShortName = "R1"
+                        Me.sLongName = "Antminer R1"
+
+                        Me.xAlertTypes.Fans = False
+                        Me.xAlertTypes.Hash = True
+                        Me.xAlertTypes.Temps = True
+                        Me.xAlertTypes.XCount = True
+
+                        With Me.xAlerts
+                            .FanHigh.Initialize("AlertIfC1Fan", "AlertValueC1Fan", "", False)
+                            .FanLow.Initialize("AlertIfC1FanLow", "AlertValueC1FanLow", "", False)
+                            .TempHigh.Initialize("AlertIfC1Temp", "AlertValueC1Temp", "", False)
+                            .HashLow.Initialize("AlertIfC1Hash", "AlertValueC1Hash", "", False)
+                            .XCount.Initialize("AlertIfC1XCount", "AlertValueC1XCount", "", False)
+                        End With
+
+                        Me.xSpeedType = enSpeedType.GHs
+
+                        Me.xHashType = enHashType.SHA256
+
                     Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerC1
                         Me.sShortName = "C1"
                         Me.sLongName = "Antminer C1"
@@ -499,6 +522,7 @@ Public Class frmMain
             End Sub
         End Class
 
+        Public AntMinerR1 As clsMinerInfo
         Public AntMinerS1 As clsMinerInfo
         Public AntMinerS2 As clsMinerInfo
         Public AntMinerS3 As clsMinerInfo
@@ -516,7 +540,7 @@ Public Class frmMain
         Public SupportedMinerCollection As System.Collections.Generic.List(Of clsMinerInfo)
 
         Public Sub New()
-
+            AntMinerR1 = New clsMinerInfo(enSupportedMinerTypes.AntMinerR1)
             AntMinerC1 = New clsMinerInfo(enSupportedMinerTypes.AntMinerC1)
             AntMinerS1 = New clsMinerInfo(enSupportedMinerTypes.AntMinerS1)
             AntMinerS2 = New clsMinerInfo(enSupportedMinerTypes.AntMinerS2)
@@ -532,6 +556,7 @@ Public Class frmMain
             InnosiloconA288 = New clsMinerInfo(enSupportedMinerTypes.InnosiliconA288MH)
 
             SupportedMinerCollection = New System.Collections.Generic.List(Of clsMinerInfo)
+            SupportedMinerCollection.Add(Me.AntMinerR1)
             SupportedMinerCollection.Add(Me.AntMinerS1)
             SupportedMinerCollection.Add(Me.AntMinerS2)
             SupportedMinerCollection.Add(Me.AntMinerS3)
@@ -2576,7 +2601,7 @@ Public Class frmMain
                                         wb(x).Tag = dr
 
                                         Select Case dr("Type")
-                                            Case "S1", "S3"
+                                            Case "S1", "S3", "R1"
                                                 wb(x).Navigate("http://" & dr("IPAddress") & ":" & dr("HTTPPort") & "/cgi-bin/luci/;stok=/admin/status/minerstatus/", False)
 
                                             Case "S2", "S4"
@@ -2959,7 +2984,7 @@ Public Class frmMain
                             jp1 = ja(1)
                         End If
 
-                    Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP10, _
+                    Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerR1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP10, _
                          clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP20, clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP30, _
                          clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP31, clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP35
                         jp1 = ja(0)
@@ -3001,7 +3026,7 @@ Public Class frmMain
                         iTemp = 0
 
                         sbStep.Clear()
-                        sbStep.Append("1.4")
+                        sbStep.Append("1.4 error here")
 
                         avg.Clear()
 
@@ -3238,7 +3263,7 @@ Public Class frmMain
 
             For Each ja In j.Property("SUMMARY")
                 Select Case MinerData.MinerInfo.MinerType
-                    Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerC1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, _
+                    Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerR1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerC1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, _
                          clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS2, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS3, _
                          clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS4, clsSupportedMinerInfo.enSupportedMinerTypes.AntminerS5
 
@@ -3345,7 +3370,7 @@ Public Class frmMain
             For Each ja In j.Property("POOLS")
                 For Each jp1 In ja
                     Select Case MinerData.MinerInfo.MinerType
-                        Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS2, _
+                        Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerR1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS2, _
                              clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS3, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerC1, _
                              clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS4, clsSupportedMinerInfo.enSupportedMinerTypes.AntminerS5
                             sbStep.Clear()
@@ -3519,9 +3544,9 @@ Public Class frmMain
 
             For Each ja In j.Property("CONFIG")
                 Select Case MinerData.MinerInfo.MinerType
-                    Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerC1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS2,
-                         clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS3, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS4, clsSupportedMinerInfo.enSupportedMinerTypes.AntminerS5,
-                         clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP10, clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP20, _
+                    Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerR1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerC1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, _
+                         clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS2, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS3, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS4, _
+                         clsSupportedMinerInfo.enSupportedMinerTypes.AntminerS5, clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP10, clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP20, _
                          clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP30, clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP31, _
                          clsSupportedMinerInfo.enSupportedMinerTypes.SpondooliesSP35
 
@@ -4279,6 +4304,14 @@ Public Class frmMain
 
                                             sMiner = SupportedMinerInfo.AntMinerS3.ShortName & ": " & sIPToCheck
                                         End If
+                                        'added for R1
+                                    Case "ANTR10"
+                                        'probably R1
+                                        If HowManyInString(jp1.Value(Of String)("chain_acs1"), " ") = 1 Then
+                                            MinerType = clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerR1
+
+                                            sMiner = SupportedMinerInfo.AntMinerR1.ShortName & ": " & sIPToCheck
+                                        End If
 
                                     Case "ANT0"
                                         'probably S1
@@ -4360,7 +4393,7 @@ Public Class frmMain
                                     Me.txtMinerSSHUsername.Text = "root"
 
                                     Select Case MinerType
-                                        Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS3, _
+                                        Case clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerR1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS1, clsSupportedMinerInfo.enSupportedMinerTypes.AntMinerS3, _
                                              clsSupportedMinerInfo.enSupportedMinerTypes.AntminerS5
                                             Me.txtMinerSSHPassword.Text = "root"
                                             Me.txtMinerWebPassword.Text = "root"
@@ -6367,6 +6400,8 @@ Public Class frmMain
 
     End Sub
 
+    
+    
 End Class
 
 'wrapper around the datagridview to allow disabling the paint event
